@@ -8,7 +8,11 @@ clc
 im_ref = rgb2gray(imread('recalage1.jpg'));
 im_moving = rgb2gray(imread('recalage2.jpg'));
 %-- test avec images de résolutions différentes
-im_moving = ait_undersample(im_moving,2); % ne fonctionne pas directement - à REPPRENDRE !
+im_moving = ait_undersample(im_moving,2); % ne fonctionne pas directement - à REPPRENDRE ! - c'est bon !
+s1 = size(im_ref);
+s2 = size(im_moving);
+Ds = s1-s2; % régler le problème : qui est la plus grande dans telle direction ? - à REPPRENDRE !
+im_moving = padarray(im_moving,Ds);
 %----------------------------------------------
 figure, imshowpair(im_moving, im_ref, 'montage');
 title('Originales');
