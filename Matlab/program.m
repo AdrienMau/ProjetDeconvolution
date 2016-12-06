@@ -719,6 +719,7 @@ function edit_radiusforpassebas_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_radiusforpassebas as text
 %        str2double(get(hObject,'String')) returns contents of edit_radiusforpassebas as a double
+
 fradius=str2double(get(hObject,'String'))
 if isnan(fradius) %not va valid number
     set(handles.edit_radiusforpassebas,'String','x');
@@ -870,7 +871,9 @@ function editradius_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hints: get(hObject,'String') returns contents of editradius as text
-%        str2double(get(hObject,'String')) returns contents of editradius as a double
+%        str2double(get(hObject,'String')) returns contents of editradius
+%        as a double
+
 fradius=str2double(get(hObject,'String'))
 if isnan(fradius) %not va valid number
     set(handles.editradius,'String','x');

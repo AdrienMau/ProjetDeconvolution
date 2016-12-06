@@ -11,3 +11,7 @@ imshow(img2)
 % Rmax=20;
 % [centersBright, radiiBright] = imfindcircles(img2,[Rmin Rmax],'ObjectPolarity','bright');
 % viscircles(centersBright, radiiBright,'Color','b');
+
+% imgf=fftshift(fft2(img2))
+% imgf(50:80,50:80)=1
+% imshow(ifft2(imgf))

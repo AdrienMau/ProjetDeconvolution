@@ -33,7 +33,7 @@ function varargout = Farview(varargin)
 
 % Edit the above text to modify the response to help Farview
 
-% Last Modified by GUIDE v2.5 06-Dec-2016 10:53:25
+% Last Modified by GUIDE v2.5 06-Dec-2016 13:01:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -100,7 +100,10 @@ varargout{1} = handles.output;
 
 %% LOAD & PATH
 
-% --- CHARGEMENT IMAGE
+
+%
+
+
 function pushbutton_load_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_load (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -175,14 +178,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-%% Basics
-
-% --- Executes on button press in pushbutton_trapide.
-function pushbutton_trapide_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_trapide (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-'lancement Traitement rapide'
 
 
 
@@ -336,22 +331,19 @@ figure
 guidata(hObject, handles);
 
 
-
-
 % --- Executes on button press in pushbutton_log.
 function pushbutton_log_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_log (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-        img=log(1+(handles.img{handles.chosenimage}))/log(2)
+        img=log(1+(handles.img{handles.chosenimage}))/log(2);
         handles.img{handles.chosenimage}=img;
         axes(handles.axes1)
         imshow(img)
 guidata(hObject, handles);
 
 warning('L''application du log peut influencer les parametres finaux du fit gaussien')
-
 
 % --- Executes on button press in pushbutton_neg.
 function pushbutton_neg_Callback(hObject, eventdata, handles)
@@ -364,8 +356,6 @@ handles.img{handles.chosenimage}=img;
 guidata(hObject, handles);
 axes(handles.axes1)
 imshow(img)
-
-
 
 % --- Executes on button press in pushbutton_gradient.
 function pushbutton_gradient_Callback(hObject, eventdata, handles)
@@ -442,12 +432,24 @@ function pushbutton_contours_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 'lancement algo Contours -----'
+%%A MODIFIER
+
 
 img=handles.img{handles.chosenimage};
 
-%%% ALGO %%%
-imgout=contours(img,
+barycentres=contours(img,handles.slider_seuil); %premiere detec de x y et R, mais fitpeak le fait ?
+
+
 % handles.img{handles.chosenimage2}=imgout;
+
+
+function pushbutton_trapide_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_trapide (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+'lancement Traitement rapide'
+
+
 
 
 % --- Executes on button press in pushbutton_arrow.
@@ -466,8 +468,8 @@ title(['image',num2str(handles.chosenimage2)])
 %% SLIDERS
 
 % --- Executes on slider movement.
-function slider_lambda_Callback(hObject, eventdata, handles)
-% hObject    handle to slider_lambda (see GCBO)
+function slideroflambda_Callback(hObject, eventdata, handles)
+% hObject    handle to slideroflambda (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -476,13 +478,14 @@ function slider_lambda_Callback(hObject, eventdata, handles)
  value=(get(hObject, 'Value')); 
 
  handles.slider_lambda = value;
- set(handles.text_slider_lambda,'String',num2str(value)); %texte àcoté
+ set(handles.text_slider_lambda,'String',num2str(value)); %texte au dessus
+ set(handles.edit_slider_lambda,'String',num2str(value)); %texte à coté
  guidata(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function slider_lambda_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider_lambda (see GCBO)
+function slideroflambda_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slideroflambda (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -501,10 +504,12 @@ end
  % Update handles structure
  guidata(hObject, handles);
  
+
+ 
  
 % --- Executes on slider movement.
-function slider_radius_Callback(hObject, eventdata, handles)
-% hObject    handle to slider_radius (see GCBO)
+function sliderofradius_Callback(hObject, eventdata, handles)
+% hObject    handle to sliderofradius (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -513,13 +518,14 @@ function slider_radius_Callback(hObject, eventdata, handles)
  value=(get(hObject, 'Value')); 
 
  handles.slider_radius = value;
- set(handles.text_slider_radius,'String',num2str(value)); %texte àcoté
+ set(handles.text_slider_radius,'String',num2str(value)); %texte au dessus
+ set(handles.edit_slider_radius,'String',num2str(value)); %texte àcoté
  guidata(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function slider_radius_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider_radius (see GCBO)
+function sliderofradius_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sliderofradius (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -540,8 +546,8 @@ end
 
 
 % --- Executes on slider movement.
-function slider_seuil_Callback(hObject, eventdata, handles)
-% hObject    handle to slider_seuil (see GCBO)
+function sliderofseuil_Callback(hObject, eventdata, handles)
+% hObject    handle to sliderofseuil (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -550,13 +556,14 @@ function slider_seuil_Callback(hObject, eventdata, handles)
  value=(get(hObject, 'Value')); 
 
  handles.slider_seuil = value;
- set(handles.text_slider_seuil,'String',num2str(value)); %texte àcoté
+ set(handles.text_slider_seuil,'String',num2str(value)); %texte au dessus
+ set(handles.edit_slider_seuil,'String',num2str(value)); %texte àcoté
  guidata(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function slider_seuil_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider_seuil (see GCBO)
+function sliderofseuil_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sliderofseuil (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -564,20 +571,137 @@ function slider_seuil_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
- numSteps = 510;
+ numSteps = 500;
  set(hObject, 'Min', 0);
- set(hObject, 'Max', 255);
- set(hObject, 'Value', 1);
+ set(hObject, 'Max', 1);
+ set(hObject, 'Value', 0.5);
  set(hObject, 'SliderStep', [1/(numSteps-1) , 1/(numSteps-1) ]);
  % save the current/last slider value
- handles.slider_seuil = 1;
+ handles.slider_seuil = 0.5;
  % Update handles structure
  guidata(hObject, handles);
+ 
 
+function edit_slider_lambda_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_slider_lambda (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_slider_lambda as text
+%        str2double(get(hObject,'String')) returns contents of edit_slider_lambda as a double
+value=get(hObject,'String');
+value2=str2double(value);
+if(~isnan(value2))
+    set(handles.text_slider_lambda,'String',(value)); %texte au dessus
+    set(hObject,'String',(value)); %texte àcoté
+    %slider:
+        if(value2>get(handles.slideroflambda,'Max'))
+            set(handles.slideroflambda,'Value',get(handles.slideroflambda,'Max')); %slider à coté max
+        elseif(value2<get(handles.slideroflambda,'Min'))
+            set(handles.slideroflambda,'Value',get(handles.slideroflambda,'Min')); %slider à coté min
+        else
+            set(handles.slideroflambda,'Value',value2); %slider àcoté
+        end
+handles.slider_lambda=value2;
+guidata(hObject, handles);
+
+else
+    
+end
+
+% --- Executes during object creation, after setting all properties.
+function edit_slider_lambda_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_slider_lambda (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function edit_slider_radius_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_slider_radius (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_slider_radius as text
+%        str2double(get(hObject,'String')) returns contents of edit_slider_radius as a double
+value=get(hObject,'String');
+value2=str2double(value);
+if(~isnan(value2))
+    set(handles.text_slider_radius,'String',(value)); %texte au dessus
+    set(hObject,'String',(value)); %texte àcoté
+    %slider:
+        if(value2>get(handles.sliderofradius,'Max'))
+            set(handles.sliderofradius,'Value',get(handles.sliderofradius,'Max')); %slider à coté max
+        elseif(value2<get(handles.sliderofradius,'Min'))
+            set(handles.sliderofradius,'Value',get(handles.sliderofradius,'Min')); %slider à coté min
+        else
+            set(handles.sliderofradius,'Value',value2); %slider àcoté
+        end
+handles.slider_radius=value2;
+guidata(hObject, handles);
+
+else
+    
+end
+
+% --- Executes during object creation, after setting all properties.
+function edit_slider_radius_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_slider_radius (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+set(hObject,'BackgroundColor','white');
+
+
+function edit_slider_seuil_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_slider_seuil (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_slider_seuil as text
+%        str2double(get(hObject,'String')) returns contents of edit_slider_seuil as a double
+
+value=get(hObject,'String');
+value2=str2double(value);
+if(~isnan(value2))
+    set(handles.text_slider_seuil,'String',(value)); %texte au dessus
+    set(hObject,'String',(value)); %texte àcoté
+    %slider:
+        if(value2>get(handles.sliderofseuil,'Max'))
+            set(handles.sliderofseuil,'Value',get(handles.sliderofseuil,'Max')); %slider à coté max
+        elseif(value2<get(handles.sliderofseuil,'Min'))
+            set(handles.sliderofseuil,'Value',get(handles.sliderofseuil,'Min')); %slider à coté min
+        else
+            set(handles.sliderofseuil,'Value',value2); %slider àcoté
+        end
+handles.slider_seuil=value2;
+guidata(hObject, handles);
+
+else
+    
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_slider_seuil_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_slider_seuil (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
  %% FIN SLIDER
- 
- 
- 
-
-
