@@ -1,0 +1,23 @@
+function [data] = load_bin(filename)
+
+% LOAD_BIN   Load binary matrix
+%
+%   Load binary matrix
+%
+%   SYNTAX
+%       [DATA] = LOAD_BIN(FILENAME)
+%
+%
+
+
+file = fopen(filename,'r');
+dataraw = fread(file,[320 256],'uint32');
+fclose(file);
+
+
+s=size(dataraw);
+tx=t(1);
+smtx=tx/2;
+
+for i=1:smtx
+    data(i,smtx)=dataraw(i,smtx)
