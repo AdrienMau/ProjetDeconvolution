@@ -2,7 +2,7 @@ function REST = filtreWiener(Data,RI,D,mu)
 
 if nargin<2
 n=3;
-x = -n:n; x=exp(-x.*x/n);
+x = -20:20; x=exp(-x.*x/n);
 RI=transpose(x)*x;
 D = [0.01,0.2,0.01;0.2,4,0.2;0.01,0.2,0.01];
 mu=0.05;
@@ -27,6 +27,9 @@ estimator = gpls .* fourierimage;
 %Doing the inverse fourier transformation of the result
 %REST = MyIFFT2(estimator,size(estimator, 1), size(estimator, 2));
 REST = fftshift(ifft2(estimator))*sqrt(size(Data,1)*size(Data,2));
+REST = (REST-mean(mean(REST)))/(max(max(REST))-mean(mean(REST)));
+
+
 function Res = MyFFT2RI(RI,N,M)
 % Paramètre de taille
 DemiN = floor(size(RI,1)/2);

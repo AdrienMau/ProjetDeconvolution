@@ -3,7 +3,14 @@
 
 %Derniere modif:
 %images en cellule 
-%
+%n images en dynamique
+
+%a faire:
+% -ouverture tif
+% - incorporation des algos contours et deconvolutino...
+% - histo sur R et I...
+% 
+% -superpo des images en RGB
 
 
 %Utiliser des cellules pour enregistrer  les images ?
@@ -33,7 +40,7 @@ function varargout = Farview(varargin)
 
 % Edit the above text to modify the response to help Farview
 
-% Last Modified by GUIDE v2.5 06-Dec-2016 13:01:47
+% Last Modified by GUIDE v2.5 06-Dec-2016 15:15:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -68,7 +75,7 @@ handles.imageisloaded=0;
 handles.folderpath='No Path Chosen';
 handles.chosenimage=1;  %premiere liste
 handles.chosenimage2=4; %deuxieme liste
-handles.nimages=4;  %nombre d'images (pour version dynamique ultérieure)
+handles.nimages=4;  %nombre d'images (pour version dynamique )
 % handles.switchaxes=1; %varie entre axes 1 et 2 pour afficher images
 
 handles.slider_lambda=1;
@@ -123,6 +130,10 @@ if(NomFic) %if a file has been chosen
             %ouverture avec trackread
             [a,fun]=trackread(NomFic);
             img=(calcR(a)); %double
+            
+            MAX=max(max(img))
+            img=img/MAX;
+            
         else
             img=double(imread(strcat(NomEmp,NomFic)));
             try %if image has multiple arrays
@@ -179,11 +190,11 @@ end
 
 
 
-
-
 %% LES LISTES
 
 % --- Choix d'une image dans la liste:
+% ( ! Au debut image X correspond au choix n°X et à handles.img{X}
+% Mais si on supprime une image ca peut induire un décalage.)
 function listbox_img_Callback(hObject, eventdata, handles)
 % hObject    handle to listbox_img (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -192,12 +203,13 @@ function listbox_img_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns listbox_img contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from listbox_img
 % contents = cellstr(get(hObject,'String'))
-contents = cellstr(get(hObject,'String'));
 
-choice=contents{get(hObject,'Value')}
-choice2=(choice(end)); %number of image chosen - string
-choice3=str2num(choice2);
-handles.chosenimage=choice3;
+choice=get(hObject,'Value');    % correspond à handles.img{choice}
+
+contents=get(hObject,'String');  %
+contents=contents{choice};
+choice2=(contents(end));     % correspond à 'Image <choice2> '
+handles.chosenimage=choice;
 
 % handles.switchaxes=mod(handles.switchaxes,2)+1; % on alterne pour afficher: 1 donne 2, 2 donne 1
 % 
@@ -211,12 +223,9 @@ handles.chosenimage=choice3;
 % choice3
 axes(handles.axes1)
 try
-imshow(handles.img{choice3});
-title(['image',choice2]);
+    imshow(handles.img{choice});
+    title(['Image ',choice2]);
 end
-guidata(hObject, handles);
-
-
 guidata(hObject, handles);
 
 
@@ -233,7 +242,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
+% ( ! Au debut image X correspond au choix n°X et à handles.img{X}
+% Mais si on supprime une image ca peut induire un décalage.)
 % --- Executes on selection change in listbox_out.
 function listbox_out_Callback(hObject, eventdata, handles)
 % hObject    handle to listbox_out (see GCBO)
@@ -242,11 +252,13 @@ function listbox_out_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns listbox_out contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from listbox_out
-contents = cellstr(get(hObject,'String'));
-choice=contents{get(hObject,'Value')}
-choice2=(choice(end)); %number of image chosen - string
-choice3=str2num(choice2);
-handles.chosenimage2=choice3;
+
+choice=get(hObject,'Value');    % correspond à handles.img{choice}
+
+contents=get(hObject,'String');  %
+contents=contents{choice};
+choice2=(contents(end));     % correspond à 'Image <choice2> '
+handles.chosenimage2=choice;
 % handles.switchaxes=mod(handles.switchaxes,2)+1; % on alterne pour afficher: 1 donne 2, 2 donne 1
 % 
 % %Affichage
@@ -259,8 +271,8 @@ handles.chosenimage2=choice3;
 % % choice3
 axes(handles.axes2)
 try
-imshow(handles.img{choice3});
-title(['image',choice2]);
+imshow(handles.img{choice});
+title(['Image ',num2str(choice)]);
 end
 guidata(hObject, handles);
 
@@ -394,9 +406,6 @@ function Untitled_1_Callback(hObject, eventdata, handles)
 
 
 
-
-
-
 % --- Executes on button press in pushbutton_deconv.
 function pushbutton_deconv_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_deconv (see GCBO)
@@ -407,16 +416,15 @@ function pushbutton_deconv_Callback(hObject, eventdata, handles)
 img=handles.img{handles.chosenimage};
 
 %param wiener
-n=handles.slider_radius;
-n=3
-lambda=handles.slider_lambda;
+n=(handles.slider_radius);
+lambda=handles.slider_lambda
 %PSF et D:
-x = -n:n; x=exp(-x.*x/n);
+x = -20:20; x=exp(-x.*x/n/n);
 RI=transpose(x)*x;
 D = [0.01,0.2,0.01;0.2,4,0.2;0.01,0.2,0.01];
 
-
 imgout=filtreWiener(img,RI,D,lambda);
+
 handles.img{handles.chosenimage2}=imgout;
 guidata(hObject, handles);
 %display
@@ -705,3 +713,45 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
  %% FIN SLIDER
+
+
+% --- Executes on button press in pushbutton_add.
+function pushbutton_add_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_add (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+nimages=handles.nimages;
+contents = cellstr(get(handles.listbox_img,'String'));
+contents = [contents ;['Image ',num2str(nimages+1)]] %ajout image;
+set(handles.listbox_img,'String',contents);
+set(handles.listbox_out,'String',contents);
+handles.nimages=nimages+1;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in pushbutton_delete.
+function pushbutton_delete_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_delete (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+nimages=handles.nimages;
+todelete=handles.chosenimage;
+
+contents = cellstr(get(handles.listbox_img,'String'));
+contents(todelete)=[]
+set(handles.listbox_img,'String',contents);
+set(handles.listbox_out,'String',contents);
+handles.nimages=nimages-1;
+
+%Replacement des Marqueurs:
+if(handles.chosenimage2==todelete) 
+    handles.chosenimage2=1;
+    set(handles.listbox_out,'Value',1);
+else
+    set(handles.listbox_out,'Value',handles.chosenimage2);
+end %si marqueur liste out sur img suprimée on remet 1
+handles.chosenimage=1; set(handles.listbox_img,'Value',1); %retourne le marqueur sur 1ere image
+%fin replacement
+
+guidata(hObject, handles);

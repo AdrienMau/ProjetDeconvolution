@@ -23,7 +23,7 @@ else
 end
 
 
-subplot(221);imshow2(img);title('image initiale');
+% subplot(221);imshow2(img);title('image initiale');
 %%
 %traitement preliminaire
 se = strel('disk',1); %seuil pour fermeture
