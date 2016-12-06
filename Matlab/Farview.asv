@@ -1,11 +1,3 @@
-%LOGICIEL DE TRAITEMENT D'IMAGE
-% Adapté à déconvolution et détection de gaussiennes/Airy
-
-%Derniere modif:
-%images en cellule 
-%
-
-
 %Utiliser des cellules pour enregistrer  les images ?
 % plus souple pour appel (pas de switch case)
 
@@ -67,8 +59,7 @@ function Farview_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.imageisloaded=0;
 handles.folderpath='No Path Chosen';
 handles.chosenimage=1;  %premiere liste
-handles.chosenimage2=4; %deuxieme liste
-handles.nimages=4;  %nombre d'images (pour version dynamique ultérieure)
+handles.chosenimage2=1; %deuxieme liste
 % handles.switchaxes=1; %varie entre axes 1 et 2 pour afficher images
 
 handles.slider_lambda=1;
@@ -133,10 +124,8 @@ if(NomFic) %if a file has been chosen
     handles.img{handles.chosenimage}=img;
     if((handles.imageisloaded==0)&(handles.chosenimage==1))
         %si on a encore rien chargé et laissé par défaut, on charge dans
-        %toutes les images (juste pour coté pratique)
-        for(n=1:handles.nimages)
-            handles.img{n}=img;
-        end
+        %deux images (juste pour coté pratique)
+        handles.img{2}=img;
         axes(handles.axes2)
         imshow(img)
     end
@@ -184,9 +173,6 @@ function pushbutton_trapide_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 'lancement Traitement rapide'
 
-
-
-%% LES LISTES
 
 % --- Choix d'une image dans la liste:
 function listbox_img_Callback(hObject, eventdata, handles)
@@ -284,9 +270,6 @@ end
 
 
 
-%% FIN DES LISTES
-
-
 %% Basic operations
 
 % --- Executes on button press in pushbutton_show.
@@ -344,13 +327,14 @@ function pushbutton_log_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-        img=log(1+(handles.img{handles.chosenimage}))/log(2)
+        img=imcrop(handles.img{handles.chosenimage})
         handles.img{handles.chosenimage}=img;
+
         axes(handles.axes1)
         imshow(img)
 guidata(hObject, handles);
 
-warning('L''application du log peut influencer les parametres finaux du fit gaussien')
+
 
 
 % --- Executes on button press in pushbutton_neg.
@@ -384,7 +368,7 @@ imshow(imgtemp)
 guidata(hObject, handles);
 
 
-%% FIN BASIC OP
+
 
 
 
@@ -446,7 +430,7 @@ function pushbutton_contours_Callback(hObject, eventdata, handles)
 img=handles.img{handles.chosenimage};
 
 %%% ALGO %%%
-imgout=contours(img,
+
 % handles.img{handles.chosenimage2}=imgout;
 
 
