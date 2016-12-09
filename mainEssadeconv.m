@@ -29,11 +29,11 @@ imshow(d,[])
 %bla=findpeak(d,opt);
 
 %%
-for n=1:1:7
+for n=0.5:0.5:3
     
 %psf = besselj2D(n);
 
-x = -n:n; x=exp(-x.*x/n);
+x = -20:20; x=exp(-x.*x/n/n);
 psf=transpose(x)*x;
 figure
 
