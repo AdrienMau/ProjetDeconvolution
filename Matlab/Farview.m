@@ -7,7 +7,9 @@
 
 %a faire:
 % -ouverture tif
-% - incorporation des algos contours et deconvolutino...
+% - incorporer la recherche automatiques des valeurs (seuil / sigma+lambda)
+%       ->
+% - incorporation des algos contours et deconvolution...
 % - histo sur R et I...
 % 
 % -superpo des images en RGB
@@ -751,7 +753,7 @@ nimages=handles.nimages;
 todelete=handles.chosenimage;
 
 contents = cellstr(get(handles.listbox_img,'String'));
-contents(todelete)=[]
+contents(todelete)=[];
 set(handles.listbox_img,'String',contents);
 set(handles.listbox_out,'String',contents);
 handles.nimages=nimages-1;
@@ -775,6 +777,41 @@ function pushbutton_autodec_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+img=handles.img{handles.chosenimage};
+
+% A FAIRE:    lambda= f(img)
+%             radius= f(img)
+
+
+
+%Actualisation des valeurs trouvées:
+    set(handles.text_slider_lambda,'String',(lambda)); %texte au dessus
+    set(handles.text_slider_radius,'String',(radius)); %texte au dessus
+    set(handles.edit_slider_lambda,'String',(lambda)); %texte au dessus
+    set(handles.edit_slider_radius,'String',(radius)); %texte au dessus
+    
+    %slider 1:
+        if(lambda>get(handles.slideroflambda,'Max'))
+            set(handles.slideroflambda,'Value',get(handles.slideroflambda,'Max')); %slider à coté max
+        elseif(lambda<get(handles.slideroflambda,'Min'))
+            set(handles.slideroflambda,'Value',get(handles.slideroflambda,'Min')); %slider à coté min
+        else
+            set(handles.slideroflambda,'Value',lambda); %slider àcoté
+        end
+    %slider 2:
+        if(radius>get(handles.sliderofradius,'Max'))
+            set(handles.sliderofradius,'Value',get(handles.sliderofradius,'Max')); %slider à coté max
+        elseif(radius<get(handles.sliderofradius,'Min'))
+            set(handles.sliderofradius,'Value',get(handles.sliderofradius,'Min')); %slider à coté min
+        else
+            set(handles.sliderofradius,'Value',radius); %slider àcoté
+        end
+        
+handles.slider_lambda=lambda;
+handles.slider_radius=radius;
+
+%fin actualisation ---
+guidata(hObject, handles);
 
 % --- Executes on button press in checkbox_autodec.
 function checkbox_autodec_Callback(hObject, eventdata, handles)
@@ -795,10 +832,13 @@ function pushbutton_autocont_Callback(hObject, eventdata, handles)
 %Give automatic values for threshold (seuil)
 
 img=handles.img{handles.chosenimage};
-% value= f(img)
+
+
+% A FAIRE: value= f(img)
+
 
     set(handles.text_slider_seuil,'String',(value)); %texte au dessus
-    set(hObject,'String',(value)); %texte àcoté
+    set(handles.edit_slider_seuil,'String',(value)); %texte àcoté
     %slider:
         if(value>get(handles.sliderofseuil,'Max'))
             set(handles.sliderofseuil,'Value',get(handles.sliderofseuil,'Max')); %slider à coté max
