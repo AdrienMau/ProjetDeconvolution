@@ -430,15 +430,9 @@ function pushbutton_deconv_Callback(hObject, eventdata, handles)
 
 img=handles.img{handles.chosenimage};
 
-%param wiener
-n=(handles.slider_radius);
-lambda=handles.slider_lambda
-%PSF et D:
-x = -20:20; x=exp(-x.*x/n/n);
-RI=transpose(x)*x;
-D = [0.01,0.2,0.01;0.2,4,0.2;0.01,0.2,0.01];
 
-imgout=filtreWiener(img,RI,D,lambda);
+imgout=gui_deconv(img , handles.slider_lambda , handles.slider_radius);
+
 
 handles.img{handles.chosenimage2}=imgout;
 guidata(hObject, handles);
@@ -503,6 +497,15 @@ function slideroflambda_Callback(hObject, eventdata, handles)
  handles.slider_lambda = value;
  set(handles.text_slider_lambda,'String',num2str(value)); %texte au dessus
  set(handles.edit_slider_lambda,'String',num2str(value)); %texte à coté
+  
+ %fit auto
+ if(handles.do_auto_fit)
+    imgout =gui_deconv(handles.img{handles.chosenimage},handles.slider_lambda,handles.slider_radius);
+    axes(handles.axes2);
+    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
+    handles.img{handles.chosenimage2}=imgout;
+ end
+ 
  guidata(hObject, handles);
 
 
@@ -529,7 +532,6 @@ end
  
 
  
- 
 % --- Executes on slider movement.
 function sliderofradius_Callback(hObject, eventdata, handles)
 % hObject    handle to sliderofradius (see GCBO)
@@ -542,7 +544,16 @@ function sliderofradius_Callback(hObject, eventdata, handles)
 
  handles.slider_radius = value;
  set(handles.text_slider_radius,'String',num2str(value)); %texte au dessus
- set(handles.edit_slider_radius,'String',num2str(value)); %texte àcoté
+ set(handles.edit_slider_radius,'String',num2str(value));
+ 
+  if(handles.do_auto_fit)
+    imgout =gui_deconv(handles.img{handles.chosenimage},handles.slider_lambda,handles.slider_radius);
+    axes(handles.axes2);
+    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
+    handles.img{handles.chosenimage2}=imgout;
+ end
+ 
+ %texte àcoté
  guidata(hObject, handles);
 
 
@@ -581,6 +592,15 @@ function sliderofseuil_Callback(hObject, eventdata, handles)
  handles.slider_seuil = value;
  set(handles.text_slider_seuil,'String',num2str(value)); %texte au dessus
  set(handles.edit_slider_seuil,'String',num2str(value)); %texte àcoté
+ 
+ %Fit auto:
+ if(handles.do_auto_fit)
+    imgout =gui_fit(handles.img{handles.chosenimage},handles.slider_seuil);
+    axes(handles.axes2);
+    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
+    handles.img{handles.chosenimage2}=imgout;
+ end
+ 
  guidata(hObject, handles);
 
 
@@ -626,6 +646,14 @@ if(~isnan(value2))
             set(handles.slideroflambda,'Value',value2); %slider àcoté
         end
 handles.slider_lambda=value2;
+
+ if(handles.do_auto_fit)
+    imgout =gui_deconv(handles.img{handles.chosenimage},handles.slider_lambda,handles.slider_radius);
+    axes(handles.axes2);
+    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
+    handles.img{handles.chosenimage2}=imgout;
+ end
+
 guidata(hObject, handles);
 
 else
@@ -666,6 +694,14 @@ if(~isnan(value2))
             set(handles.sliderofradius,'Value',value2); %slider àcoté
         end
 handles.slider_radius=value2;
+
+ if(handles.do_auto_fit)
+    imgout =gui_deconv(handles.img{handles.chosenimage},handles.slider_lambda,handles.slider_radius);
+    axes(handles.axes2);
+    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
+    handles.img{handles.chosenimage2}=imgout;
+ end
+
 guidata(hObject, handles);
 
 else
@@ -708,6 +744,16 @@ if(~isnan(value2))
             set(handles.sliderofseuil,'Value',value2); %slider àcoté
         end
 handles.slider_seuil=value2;
+
+%on lance le fit automatiquement:
+if(handles.do_auto_fit)
+    imgout =gui_fit(handles.img{handles.chosenimage},handles.slider_seuil);
+    axes(handles.axes2);
+    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
+    handles.img{handles.chosenimage2}=imgout;
+end
+
+
 guidata(hObject, handles);
 
 else
@@ -772,7 +818,7 @@ handles.chosenimage=1; set(handles.listbox_img,'Value',1); %retourne le marqueur
 guidata(hObject, handles);
 
 
-% --- Executes on button press in pushbutton_autodec.
+%trouve automatiquement les valeurs biens
 function pushbutton_autodec_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_autodec (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -783,7 +829,9 @@ img=handles.img{handles.chosenimage};
 % A FAIRE:    lambda= f(img)
 %             radius= f(img)
 
-
+%en attendant: (a supprimer) 
+lambda=handles.slider_lambda;
+radius=handles.slider_radius;
 
 %Actualisation des valeurs trouvées:
     set(handles.text_slider_lambda,'String',(lambda)); %texte au dessus
@@ -811,10 +859,20 @@ img=handles.img{handles.chosenimage};
 handles.slider_lambda=lambda;
 handles.slider_radius=radius;
 
+%auto
+ if(handles.do_auto_fit)
+     'hey'
+    imgout =gui_deconv(img,handles.slider_lambda,handles.slider_radius);
+    axes(handles.axes2);
+    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
+    handles.img{handles.chosenimage2}=imgout;
+ end
+
+
 %fin actualisation ---
 guidata(hObject, handles);
 
-% --- Executes on button press in checkbox_autodec.
+% Si coché: on lance automatiquement la deconv a chaque changement valeur
 function checkbox_autodec_Callback(hObject, eventdata, handles)
 % hObject    handle to checkbox_autodec (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -822,9 +880,9 @@ function checkbox_autodec_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox_autodec
 handles.do_auto_dec=get(hObject,'Value');
+guidata(hObject, handles);
 
-
-% --- Executes on button press in pushbutton_autocont.
+%trouve automatiquement les valeurs biens
 function pushbutton_autocont_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_autocont (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -835,8 +893,11 @@ function pushbutton_autocont_Callback(hObject, eventdata, handles)
 img=handles.img{handles.chosenimage};
 
 
-% A FAIRE: value= f(img)
+% A FAIRE: value= f(img)        %trouve le seuil auto
 
+
+%en attdant: (a supr)
+value=handles.slider_seuil;
 
     set(handles.text_slider_seuil,'String',(value)); %texte au dessus
     set(handles.edit_slider_seuil,'String',(value)); %texte àcoté
@@ -849,12 +910,22 @@ img=handles.img{handles.chosenimage};
             set(handles.sliderofseuil,'Value',value); %slider àcoté
         end
 handles.slider_seuil=value;
+
+
+handles.do_auto_fit
+if(handles.do_auto_fit)
+    imgout = gui_fit(img,value);
+    axes(handles.axes2);
+    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
+    handles.img{handles.chosenimage2}=imgout;
+end
+
+
+
 guidata(hObject, handles);
 
 
-
-
-% --- Executes on button press in checkbox_autofit.
+% Si coché: on lance automatiquement le fit a chaque changement valeur
 function checkbox_autofit_Callback(hObject, eventdata, handles)
 % hObject    handle to checkbox_autofit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -862,4 +933,36 @@ function checkbox_autofit_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox_autofit
 handles.do_auto_fit=get(hObject,'Value');
+guidata(hObject, handles);
 
+
+function [imgout] = gui_deconv(img,lambda,sigma)
+
+    %param wiener
+    n=sigma;
+
+    %PSF et D:
+    x = -20:20; x=exp(-x.*x/n/n);
+    RI=transpose(x)*x;
+    D = [0.01,0.2,0.01;0.2,4,0.2;0.01,0.2,0.01];
+
+    imgout=filtreWiener(img,RI,D,lambda);
+    'deconv lancee'
+
+   
+    
+    
+function imgout = gui_fit(img,seuil)
+
+'fit lance'
+imgout=(img).*img>seuil; % FAire le fit ici les copains
+
+
+
+
+
+
+
+
+
+%     imgout=f(img)
