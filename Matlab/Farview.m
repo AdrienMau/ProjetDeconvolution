@@ -5,15 +5,16 @@
 %images en cellule 
 %n images en dynamique
 
+
 %a faire:
-% -ouverture tif
+
 % - incorporer la recherche automatiques des valeurs (seuil / sigma+lambda)
-%       ->
+%       ->  cf fonctions
 % - incorporation des algos contours et deconvolution...
 % - histo sur R et I...
 % 
 % -superpo des images en RGB
-
+% -ouverture tif
 
 %Utiliser des cellules pour enregistrer  les images ?
 % plus souple pour appel (pas de switch case)
