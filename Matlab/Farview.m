@@ -46,7 +46,7 @@ function varargout = Farview(varargin)
 
 % Edit the above text to modify the response to help Farview
 
-% Last Modified by GUIDE v2.5 12-Dec-2016 14:04:47
+% Last Modified by GUIDE v2.5 12-Dec-2016 15:15:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -970,7 +970,7 @@ function imgout = gui_fit(img,seuil)
 imgout=fitngauss(img,seuil,3,1);
 
 
-% --- Executes on key press with focus on figure1 and none of its controls.
+% --- Detection de touche !
 function figure1_KeyPressFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
@@ -978,3 +978,27 @@ function figure1_KeyPressFcn(hObject, eventdata, handles)
 %	Character: character interpretation of the key(s) that was pressed
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
+
+eventdata.Key
+switch eventdata.Key
+    case 'c'
+        %CONTRAST: affichage du min au max
+        axes(handles.axes1)
+        imshow(handles.img{handles.chosenimage},[])
+        axes(handles.axes2)
+        imshow(handles.img{handles.chosenimage2},[])
+
+end
+
+function affichage(naxes) %affiche une image sur l'handle correspondant
+
+switch naxes
+    case 1
+        axes(handles.axes1)
+        imshow(handles.img{handles.chosenimage})
+        title('')
+    case 2
+        axes(handles.axes2)
+        imshow(handles.img{handles.chosenimage2})
+        title('')
+end
