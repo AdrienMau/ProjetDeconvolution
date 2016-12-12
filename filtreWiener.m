@@ -1,4 +1,4 @@
-function REST = filtreWiener(Data,RI,D,mu)
+function REST = filtreWiener(Data,RI,mu,D)
 
 if nargin<2
     n=3;
@@ -20,7 +20,7 @@ gpls= ones(size(Data, 1), size(Data, 2));
 
 for i=1:size(Data,1)
     for j=1:size(Data, 2)
-        gpls(i,j) = conj(fourierpsf(i,j))/((abs(fourierpsf(i,j)))*(abs(fourierpsf(i,j))) + mu*(abs(fourierregfilter(i,j)))*(abs(fourierregfilter(i,j))));
+        gpls(i,j) = conj(fourierpsf(i,j))/(abs(fourierpsf(i,j))*abs(fourierpsf(i,j)) + mu*abs(fourierregfilter(i,j))*abs(fourierregfilter(i,j)));
     end
 end
 
@@ -42,5 +42,5 @@ function Res = MyFFT2RI(RI,N,M)
     DemiM = floor(size(RI,2)/2);
 % Calcul
 	Tmp = zeros(N,M);
-	Tmp ( 1+N/2-DemiM:1+N/2+DemiM , 1+M/2-DemiM:1+M/2+DemiM ) = RI; 
+	Tmp ( 1+N/2-DemiN:1+N/2+DemiN , 1+M/2-DemiM:1+M/2+DemiM ) = RI; 
 	Res = fft2(Tmp,N,M);
