@@ -90,7 +90,8 @@ handles.folderpath='No Path Chosen';
     handles.do_auto_dec=0;
     handles.do_auto_fit=0;
 
-
+cla(handles.axes1,'reset') %reset des axes
+cla(handles.axes2,'reset') %reset des axes
 % Choose default command line output for Farview
 handles.output = hObject;
 
@@ -109,6 +110,7 @@ function varargout = Farview_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
+
 varargout{1} = handles.output;
 
 
