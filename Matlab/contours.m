@@ -17,7 +17,7 @@ if (~exist('img','var'))
 end
 
 if (~exist('s','var'))
-   imbin = graythresh(img); %seuil par la regle d'otsu
+   imbin = img<graythresh(img); %seuil par la regle d'otsu
 else
    imbin=img<s;
 end

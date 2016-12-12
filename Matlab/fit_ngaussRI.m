@@ -12,7 +12,7 @@ function [ gaussianRI ] = fit_ngaussRI(img, barycentres)
 %   img: image containing gaussians, with no offset
 %   barycentres: vector with n columns, containing position I J and approximate radius
 %Sortie:
-%   gaussiansRI: contains radius and intensity of gaussians.
+%   gaussianRI: contains radius and intensity of gaussians.
 
 %Author: Mau Adrien;
 

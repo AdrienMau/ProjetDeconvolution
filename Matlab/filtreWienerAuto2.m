@@ -1,5 +1,7 @@
 function [mu] = filtreWienerAuto2(Data,RI,D,nbIterations)
 %filtreWienerAuto2: renvoie un mu proche de l'optimal pour la déconvolution
+%adapté de FiltreWiener
+
 %(histoire de probabilité)
 
 %Entrées:
@@ -62,7 +64,7 @@ for k=1:floor(nbIterations)
     fourierestimator = RNDGauss(fouriermean,fouriercovariance);
 
 end
- 
+ 'a'
 mu=abs(samplegammax/samplegammab);
 % REST = filtreWiener(Data,RI,mu,D);
 

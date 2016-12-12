@@ -15,9 +15,9 @@ fourierregfilter = MyFFT2RI(D,size(Data,1),size(Data,2));
 %Construct the gpls array
 gpls= ones(size(Data, 1), size(Data, 2));
 for i=1:size(Data,1)
-for j=1:size(Data, 2)
-gpls(i,j) = conj(fourierpsf(i,j))/((abs(fourierpsf(i,j)))*(abs(fourierpsf(i,j))) + mu*(abs(fourierregfilter(i,j)))*(abs(fourierregfilter(i,j))));
-end
+    for j=1:size(Data, 2)
+     gpls(i,j) = conj(fourierpsf(i,j))/((abs(fourierpsf(i,j)))*(abs(fourierpsf(i,j))) + mu*(abs(fourierregfilter(i,j)))*(abs(fourierregfilter(i,j))));
+    end
 end
 %Construction of the FFT of the observation matrix
 %fourierimage = MyFFT2(Data,size(Data,1),size(Data,2));

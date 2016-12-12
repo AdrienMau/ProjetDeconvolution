@@ -4,18 +4,15 @@
 %Derniere modif:
 %images en cellule 
 %n images en dynamique
-% - incorporer la recherche automatiques des valeurs (seuil / sigma+lambda)
+
 
 %a faire:
 
-%
+% - incorporer la recherche automatiques des valeurs (seuil / sigma+lambda)
+%       ->  cf fonctions
 % - incorporation des algos contours et deconvolution...
-% INCORPORER FITPEAK (dans function imgout = gui_fit(img,seuil)  )
-
-
 % - histo sur R et I...
-% changer noms
-% log des operations
+% 
 % -superpo des images en RGB
 % -ouverture tif
 
@@ -46,7 +43,7 @@ function varargout = Farview(varargin)
 
 % Edit the above text to modify the response to help Farview
 
-% Last Modified by GUIDE v2.5 12-Dec-2016 14:04:47
+% Last Modified by GUIDE v2.5 09-Dec-2016 09:58:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -81,9 +78,9 @@ handles.imageisloaded=0;
 handles.folderpath='No Path Chosen';
 %les listes et images:
     handles.chosenimage=1;  %choix sur premiere liste
-    handles.chosenimage2=2; %choix sur deuxieme liste
-    handles.nimages=3;  %nombre d'images (pour version dynamique )
-    handles.num=4; %numero donné à la prochaine image qui sera créée
+    handles.chosenimage2=4; %choix sur deuxieme liste
+    handles.nimages=4;  %nombre d'images (pour version dynamique )
+    handles.num=5; %numero donné à la prochaine image qui sera créée
 
 % handles.switchaxes=1; %varie entre axes 1 et 2 pour afficher images
 %les sliders et lancement auto de la fonction:
@@ -219,7 +216,8 @@ function listbox_img_Callback(hObject, eventdata, handles)
 choice=get(hObject,'Value');    % correspond à handles.img{choice}
 
 contents=get(hObject,'String');  %
-contents=contents{choice};     % nom de l'image
+contents=contents{choice};
+choice2=(contents(end));     % correspond à 'Image <choice2> '
 handles.chosenimage=choice;
 
 % handles.switchaxes=mod(handles.switchaxes,2)+1; % on alterne pour afficher: 1 donne 2, 2 donne 1
@@ -235,7 +233,7 @@ handles.chosenimage=choice;
 axes(handles.axes1)
 try
     imshow(handles.img{choice});
-    title(contents);
+    title(['Image ',choice2]);
 end
 guidata(hObject, handles);
 
@@ -457,9 +455,8 @@ function pushbutton_contours_Callback(hObject, eventdata, handles)
 
 
 img=handles.img{handles.chosenimage};
-imgout = gui_fit(img,seuil);
 
-
+barycentres=contours(img,handles.slider_seuil); %premiere detec de x y et R, mais fitpeak le fait ?
 
 
 % handles.img{handles.chosenimage2}=imgout;
@@ -789,11 +786,10 @@ function pushbutton_add_Callback(hObject, eventdata, handles)
 
 nimages=handles.nimages;
 contents = cellstr(get(handles.listbox_img,'String'));
-contents = [contents ;['Image ',num2str(handles.num)]] %ajout image X;
+contents = [contents ;['Image ',num2str(handles.num+1)]] %ajout image X;
 set(handles.listbox_img,'String',contents);
 set(handles.listbox_out,'String',contents);
 handles.nimages=nimages+1;
-handles.num=handles.num+1;
 guidata(hObject, handles);
 
 
@@ -872,6 +868,7 @@ handles.slider_radius=radius;
 
 %auto
  if(handles.do_auto_dec)
+     'hey'
     imgout =gui_deconv(img,handles.slider_lambda,handles.slider_radius);
     axes(handles.axes2);
     imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
@@ -938,7 +935,6 @@ function checkbox_autofit_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox_autofit
-
 handles.do_auto_fit=get(hObject,'Value')
 guidata(hObject, handles);
 
@@ -947,6 +943,7 @@ function [imgout] = gui_deconv(img,lambda,sigma)
 
     %param wiener
     n=sigma;
+    lambda
     %PSF et D:
     x = -20:20; x=exp(-x.*x/n/n);
     RI=transpose(x)*x;
@@ -961,20 +958,14 @@ function [imgout] = gui_deconv(img,lambda,sigma)
 function imgout = gui_fit(img,seuil)
 
 'fit lance'
+imgout=(img).*img>seuil; % FAire le fit ici les copains
 
 
-% barycentres=contours(img,handles.slider_seuil); %premiere detec de x y et R, mais fitpeak le fait ?
-
-% imgout=(img).*img>seuil; % FAire le fit ici les copains
-% OU UTILISATION DE FITPEAK
-imgout=fitngauss(img,seuil,3,1);
 
 
-% --- Executes on key press with focus on figure1 and none of its controls.
-function figure1_KeyPressFcn(hObject, eventdata, handles)
-% hObject    handle to figure1 (see GCBO)
-% eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
-%	Key: name of the key that was pressed, in lower case
-%	Character: character interpretation of the key(s) that was pressed
-%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
-% handles    structure with handles and user data (see GUIDATA)
+
+
+
+
+
+%     imgout=f(img)

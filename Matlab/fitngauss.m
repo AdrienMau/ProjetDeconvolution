@@ -1,35 +1,39 @@
+function [ gaussianRI ] = fitngauss( img,seuil,algo,doplot )
 
-%TEST DE contours , fit_ngaussRI ; affichage sur image relle - microscope
-%photothermal
-
-
-choix=2;    f_r=2;
-% choix=1: on fait le fit gaussien directement sur les n gaussiennes !
-% choix=2 : on découpe en zone de taille f_r*rayon contenant chacune supposément une gaussienne
-% (mais pb si on a 2 gaussiennes proche... => préparer troisieme cas ? des
-% régions de gaussiennes proches)
-
-marqo=1; %pour choix2: utiliser marqogauss ou non ?
+%Fit des gaussiennes présentes sur une image, 
+% 1 -utilise un seuil pour détecter des zones et le nombre de gaussiennes.
+%    Calcule leurs positions et leurs rayons approx.
+% 2- fait un algo:
+%       algo=1 Fit directement sur n gaussienne
+%       algo=2 Fit de 1 gaussienne sur n zones
+%       algo=3 Fit de 1 gaussienne sur n zones avec marqogauss
 
 
-% Load image
-if (~exist('img','var'))
-    img=rgb2gray(imread('particles.jpg'));
+%Entrées:
+%   img: image en nuance de gris/ 2D
+%   seuil: seuil pour détecter les zones
+%Sortie:
+%   gaussiansRI: contains radius and intensity of gaussians.
+
+%Par Mau Adrien;
+
+f_r=1.5; %facteur sur le rayon estimé pour les tailles de zone choisies.
+
+if(doplot)
+    figure
+    barycentres=contoursp(img,seuil);          %taille 3*n i*j  forme [ j i r ] soit [x y r]
+else
+    barycentres=contours(img,seuil); 
 end
-img=(imdata(105));
-
-%detection des centres et des rayons
-seuil=mean(mean(img))+0.1;
-barycentres=contoursp(img,seuil);          %taille 3*n i*j  forme [ j i r ] soit [x y r]
-n=length(barycentres)
+n=length(barycentres);
 s=size(img);
     
 % fit gaussien
 gaussianRI=zeros(n,2);
-if(choix==1)
+if(algo==1)
    gaussianRI=fit_ngaussRI(img, barycentres);
 
-elseif(choix==2)    %region par region, avec fit_ngauss (où n=1) ou marqogauss
+elseif(algo>1)    %region par region, avec fit_ngauss (où n=1) ou marqogauss
 %     figure
     p=zeros(n,5); %for marqogauss
     maxloops=100; %for marqogauss
@@ -40,9 +44,8 @@ elseif(choix==2)    %region par region, avec fit_ngauss (où n=1) ou marqogauss
         ymin=ceil(1+max(  (barycentres(2,i)-r*f_r) , 1 ));
         xmax=floor(min( (barycentres(1,i)+r*f_r) , s(2) ));
         ymax=floor(min( (barycentres(2,i)+r*f_r) , s(1) ));
-        
 
-        if(~marqo)
+        if(algo==2)
         %choix fit:
             %juste variance et intensité:
             gaussianRI(i,:)=fit_ngaussRI(img(ymin:ymax,xmin:xmax) , barycentres(:,i)-[xmin;ymin;0]); %fit juste i et R 
@@ -88,9 +91,21 @@ end
 
 MSQ=sum(sum((fitg-img).^2))
 
-subplot(224)
-imshow(fitg)
+if(doplot)
+    subplot(224);    imshow(fitg);
+    figure
+    histogram(gaussianRI(:,1))
+    title('repartition des rayons');
+end
 
 
-figure
-histogram(gaussianRI(:,1))
+
+
+
+
+
+
+
+
+end
+
