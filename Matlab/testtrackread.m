@@ -3,7 +3,8 @@
 % img=calcR(a);
 % imshow(img)
 
-img2=imdata(105);
+% img2=imdata(110);
+
 imshow(img2)
 
 % img2=imresize(img2,2);

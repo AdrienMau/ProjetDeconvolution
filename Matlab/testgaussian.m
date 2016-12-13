@@ -17,7 +17,7 @@ offset=1;
 p=[x,y,fwhm,area*5,offset];
 p2=[offset,4*log(2)/p(3)^2/pi*p(4),y,x,fwhm/(2*sqrt(2*log(2)))];
 % max(max(G))
-% MAX=4*log(2)/p(3)^2/pi*p(4)+offset   %max de la gaussienne
+% MAX=4*log(2)/p(3)^2/pi*p(4)+offset   %max de la gaussienne, p(4) ='area'
 % FWHM=2 sqrt(2*ln(2)) * sigma
 
 G=gaussian(p,100,80); %100: taille horizontale de l'image, 80:verticale

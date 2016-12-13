@@ -1,6 +1,9 @@
 %LOGICIEL DE TRAITEMENT D'IMAGE
 % Adapté à déconvolution et détection de gaussiennes/Airy
 
+%De facon générale on manie des images de double, entre 0 et 1
+
+
 %Derniere modif:
 %images en cellule 
 %n images en dynamique
@@ -46,7 +49,7 @@ function varargout = Farview(varargin)
 
 % Edit the above text to modify the response to help Farview
 
-% Last Modified by GUIDE v2.5 12-Dec-2016 15:15:34
+% Last Modified by GUIDE v2.5 13-Dec-2016 19:47:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -140,7 +143,7 @@ if(NomFic) %if a file has been chosen
     %CHARGEMENT IMAGE
         if(NomFic(end-3:end)=='.dat')
             %ouverture avec trackread
-            [a,fun]=trackread(NomFic);
+            [a,fun]=trackread([NomEmp,'\',NomFic]);
             img=(calcR(a)); %double
             
             MAX=max(max(img))
@@ -153,19 +156,36 @@ if(NomFic) %if a file has been chosen
                 %si img est double, rgb2gray donnera que des 1...
                 'conversion en gris'
             end
+            
+            MAX=max(max(img))
+            if(MAX>1)  
+                %on fait un recalage de contraste entre min et 1
+                img=img/MAX;
+            end
         end
     
     % ON ATTRIBUE L'IMAGE A LIMAGE SELECTIONNEE DANS LISTE
     handles.img{handles.chosenimage}=img;
-    if((handles.imageisloaded==0)&(handles.chosenimage==1))
-        %si on a encore rien chargé et laissé par défaut, on charge dans
-        %toutes les images (juste pour coté pratique)
-        for(n=1:handles.nimages)
-            handles.img{n}=img;
-        end
-        axes(handles.axes2)
-        imshow(img)
-    end
+%     if((handles.imageisloaded==0)&(handles.chosenimage==1))
+%         %si on a encore rien chargé et laissé par défaut, 
+% %  on charge dans
+% %         %toutes les images (juste pour coté pratique)
+% %         for(n=1:handles.nimages)
+% %             handles.img{n}=img;
+% %         end
+% 
+%     end
+
+            contents = cellstr(get(handles.listbox_img,'String'));
+            contents{handles.chosenimage}=NomFic;
+            set(handles.listbox_img,'String',contents);
+            set(handles.listbox_out,'String',contents);
+            b=['Opening ',NomEmp,'\',NomFic,' '];
+            handles.log{handles.chosenimage}=b;
+            try
+                editlog(handles);
+            end
+
     axes(handles.axes1)
     imshow(img); title(NomFic);
     
@@ -173,11 +193,12 @@ if(NomFic) %if a file has been chosen
 
     handles.imageisloaded=1;
     guidata(hObject,handles)
-
+ 
 	addpath(NomEmp)
     set(handles.edit_showpath,'String',NomEmp);
     
-end
+end %else: no file chosen
+
 
 function edit_showpath_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_showpath (see GCBO)
@@ -237,6 +258,7 @@ try
     imshow(handles.img{choice});
     title(contents);
 end
+editlog(handles)
 guidata(hObject, handles);
 
 
@@ -268,7 +290,6 @@ choice=get(hObject,'Value');    % correspond à handles.img{choice}
 
 contents=get(hObject,'String');  %
 contents=contents{choice};
-choice2=(contents(end));     % correspond à 'Image <choice2> '
 handles.chosenimage2=choice;
 % handles.switchaxes=mod(handles.switchaxes,2)+1; % on alterne pour afficher: 1 donne 2, 2 donne 1
 % 
@@ -283,9 +304,11 @@ handles.chosenimage2=choice;
 axes(handles.axes2)
 try
 imshow(handles.img{choice});
-title(['Image ',num2str(choice)]);
+title(contents);
 end
 guidata(hObject, handles);
+
+  
 
 
 % --- Executes during object creation, after setting all properties.
@@ -325,16 +348,17 @@ function pushbutton_contrast_Callback(hObject, eventdata, handles)
 
         figure(1)
         imshow(uint8(handles.img{handles.chosenimage}*255))
-        imcontrast(gcf);
+        ht=imcontrast(gcf);
+        
         uiwait
         F=getframe();
         test=frame2im(F);
-        handles.img{handles.chosenimage}=double(test(:,:,1))/255;
+        handles.img{handles.chosenimage2}=double(test(:,:,1))/255;
 %         handles.img{handles.chosenimage}=F.cdata;
-
-        axes(handles.axes1)
-        imshow(F.cdata)
-        close(figure(1))
+ 
+        handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, 'contrasting']; % comment ajouter les min et max ?
+        affichage(2,handles)
+        close(figure())
 guidata(hObject, handles);
 
 
@@ -347,10 +371,10 @@ function pushbutton_crop_Callback(hObject, eventdata, handles)
 figure
         imshow(handles.img{handles.chosenimage})
         img=imcrop(handles.img{handles.chosenimage})
-        handles.img{handles.chosenimage}=img;
-
-        axes(handles.axes1)
-        imshow(img)
+        handles.img{handles.chosenimage2}=img;
+        handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' cropped '];
+        %ajouter les positions de crop ?
+        affichage(2,handles)
 guidata(hObject, handles);
 
 
@@ -361,9 +385,9 @@ function pushbutton_log_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
         img=log(1+(handles.img{handles.chosenimage}))/log(2);
-        handles.img{handles.chosenimage}=img;
-        axes(handles.axes1)
-        imshow(img)
+        handles.img{handles.chosenimage2}=img;
+        handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' log '];
+        affichage(2,handles)
 guidata(hObject, handles);
 
 warning('L''application du log peut influencer les parametres finaux du fit gaussien')
@@ -375,10 +399,12 @@ function pushbutton_neg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 img=handles.img{handles.chosenimage};
 img=1-img;
-handles.img{handles.chosenimage}=img;
+handles.img{handles.chosenimage2}=img;
+handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' neg '];
+affichage(2,handles)
+
 guidata(hObject, handles);
-axes(handles.axes1)
-imshow(img)
+
 
 % --- Executes on button press in pushbutton_gradient.
 function pushbutton_gradient_Callback(hObject, eventdata, handles)
@@ -390,10 +416,10 @@ imgtemp=(handles.img{handles.chosenimage});
 % [gx,gy]=gradient(double(imgtemp));
 [gx,gy]=gradient((imgtemp));
 imgtemp=(abs(gx+i*gy));
-handles.img{handles.chosenimage}=(imgtemp); %pb sur ce qu'on affiche en double ou uint8
+handles.img{handles.chosenimage2}=(imgtemp); %pb sur ce qu'on affiche en double ou uint8
 % handles.img{handles.chosenimage}=sqrt(gx.^2+gy.^2); %idem
-axes(handles.axes1)
-imshow(imgtemp)
+handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' gradient '];
+affichage(2,handles)
 guidata(hObject, handles);
 
 
@@ -434,16 +460,12 @@ function pushbutton_deconv_Callback(hObject, eventdata, handles)
 
 img=handles.img{handles.chosenimage};
 
+handles.img{handles.chosenimage2}=gui_deconv(img , handles);
 
-imgout=gui_deconv(img , handles.slider_lambda , handles.slider_radius);
-
-
-handles.img{handles.chosenimage2}=imgout;
 guidata(hObject, handles);
-%display
 
-axes(handles.axes2)
-imshow(imgout)
+
+
 
 
 
@@ -457,8 +479,8 @@ function pushbutton_contours_Callback(hObject, eventdata, handles)
 
 
 img=handles.img{handles.chosenimage};
-imgout = gui_fit(img,seuil);
-
+handles.img{handles.chosenimage2} = gui_fit(img,handles);
+handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(seuil)];
 
 
 
@@ -480,11 +502,23 @@ function pushbutton_arrow_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles.img{handles.chosenimage2}=handles.img{handles.chosenimage};
+c1=handles.chosenimage;
+c2=handles.chosenimage2;
+handles.img{c2}=handles.img{c1};
+affichage(2,handles)
+
+%renommation:
+    contents = cellstr(get(handles.listbox_img,'String'));
+    if(c1~=c2) %on va avoir deux images meme nom -> on evite
+        contents{c2}=[contents{c1},''''];
+        set(handles.listbox_img,'String',contents);
+        set(handles.listbox_out,'String',contents);
+     %passage des logs:
+        handles.log{handles.chosenimage2}=handles.log{handles.chosenimage};
+    end
+
 guidata(hObject, handles);
-axes(handles.axes2)
-imshow(handles.img{handles.chosenimage2})
-title(['image',num2str(handles.chosenimage2)])
+
 
 
 %% SLIDERS
@@ -505,10 +539,8 @@ function slideroflambda_Callback(hObject, eventdata, handles)
   
  %fit auto
  if(handles.do_auto_dec)
-    imgout =gui_deconv(handles.img{handles.chosenimage},handles.slider_lambda,handles.slider_radius);
-    axes(handles.axes2);
-    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
-    handles.img{handles.chosenimage2}=imgout;
+    handles.img{handles.chosenimage2} =gui_deconv(handles.img{handles.chosenimage},handles);
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Dec@lambda=',num2str(value),'sigma=',num2str(handles.slider_radius)];
  end
  
  guidata(hObject, handles);
@@ -552,10 +584,8 @@ function sliderofradius_Callback(hObject, eventdata, handles)
  set(handles.edit_slider_radius,'String',num2str(value));
  
   if(handles.do_auto_dec)
-    imgout =gui_deconv(handles.img{handles.chosenimage},handles.slider_lambda,handles.slider_radius);
-    axes(handles.axes2);
-    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
-    handles.img{handles.chosenimage2}=imgout;
+    handles.img{handles.chosenimage2} =gui_deconv(handles.img{handles.chosenimage},handles);
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Dec@lambda=',num2str(handles.slider_lambda),'sigma=',num2str(handles.slider_radius)];
  end
  
  %texte àcoté
@@ -600,10 +630,8 @@ function sliderofseuil_Callback(hObject, eventdata, handles)
  
  %Fit auto:
  if(handles.do_auto_fit)
-    imgout =gui_fit(handles.img{handles.chosenimage},handles.slider_seuil);
-    axes(handles.axes2);
-    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
-    handles.img{handles.chosenimage2}=imgout;
+    handles.img{handles.chosenimage2} =gui_fit(handles.img{handles.chosenimage},handles);
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(seuil)];
  end
  
  guidata(hObject, handles);
@@ -653,10 +681,8 @@ if(~isnan(value2))
 handles.slider_lambda=value2;
 
  if(handles.do_auto_dec)
-    imgout =gui_deconv(handles.img{handles.chosenimage},handles.slider_lambda,handles.slider_radius);
-    axes(handles.axes2);
-    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
-    handles.img{handles.chosenimage2}=imgout;
+    handles.img{handles.chosenimage2} =gui_deconv(handles.img{handles.chosenimage},handles);
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Dec@lambda=',num2str(handles.slider_lambda),'sigma=',num2str(handles.slider_radius)];
  end
 
 guidata(hObject, handles);
@@ -701,10 +727,8 @@ if(~isnan(value2))
 handles.slider_radius=value2;
 
  if(handles.do_auto_dec)
-    imgout =gui_deconv(handles.img{handles.chosenimage},handles.slider_lambda,handles.slider_radius);
-    axes(handles.axes2);
-    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
-    handles.img{handles.chosenimage2}=imgout;
+    handles.img{handles.chosenimage2} =gui_deconv(handles.img{handles.chosenimage},handles);
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Dec@lambda=',num2str(handles.slider_lambda),'sigma=',num2str(handles.slider_radius)];
  end
 
 guidata(hObject, handles);
@@ -752,10 +776,8 @@ handles.slider_seuil=value2;
 
 %on lance le fit automatiquement:
 if(handles.do_auto_fit)
-    imgout =gui_fit(handles.img{handles.chosenimage},handles.slider_seuil);
-    axes(handles.axes2);
-    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
-    handles.img{handles.chosenimage2}=imgout;
+    handles.img{handles.chosenimage2} =gui_fit(handles.img{handles.chosenimage},handles);
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(seuil)];
 end
 
 
@@ -872,10 +894,8 @@ handles.slider_radius=radius;
 
 %auto
  if(handles.do_auto_dec)
-    imgout =gui_deconv(img,handles.slider_lambda,handles.slider_radius);
-    axes(handles.axes2);
-    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
-    handles.img{handles.chosenimage2}=imgout;
+    handles.img{handles.chosenimage2} =gui_deconv(img,handles);
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Dec@lambda=',num2str(handles.slider_lambda),'sigma=',num2str(handles.slider_radius)];
  end
 
 
@@ -883,7 +903,7 @@ handles.slider_radius=radius;
 guidata(hObject, handles);
 
 % Si coché: on lance automatiquement la deconv a chaque changement valeur
-function checkbox_autodec_Callback(hObject, eventdata, handles)
+function checkbox_autodec_Callback(hObject, ~, handles)
 % hObject    handle to checkbox_autodec (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -917,16 +937,10 @@ value = graythresh(img); %regle d'Otsu pour le seuil
         end
 handles.slider_seuil=value;
 
-
-handles.do_auto_fit
 if(handles.do_auto_fit)
-    imgout = gui_fit(img,value);
-    axes(handles.axes2);
-    imshow(imgout); title(['Image ',num2str(handles.chosenimage2)]);
-    handles.img{handles.chosenimage2}=imgout;
+    handles.img{handles.chosenimage2} = gui_fit(img,handles);
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(seuil)];
 end
-
-
 
 guidata(hObject, handles);
 
@@ -943,32 +957,56 @@ handles.do_auto_fit=get(hObject,'Value')
 guidata(hObject, handles);
 
 
-function [imgout] = gui_deconv(img,lambda,sigma)
+function [imgout] = gui_deconv(img,handles)
 
-    %param wiener
-    n=sigma;
+    lambda=handles.slider_lambda;
+    n=handles.slider_radius;
+
     %PSF et D:
     x = -20:20; x=exp(-x.*x/n/n);
     RI=transpose(x)*x;
     D = [0.01,0.2,0.01;0.2,4,0.2;0.01,0.2,0.01];
 
     imgout=filtreWiener(img,RI,D,lambda);
+    handles.img{handles.chosenimage2}=imgout;
     'deconv lancee'
+    
+    %Affichage
+    contents = cellstr(get(handles.listbox_img,'String'));
+    contents{handles.chosenimage2}=[contents{handles.chosenimage},' deconv'];
+    set(handles.listbox_img,'String',contents);
+    set(handles.listbox_out,'String',contents);
+        axes(handles.axes2);
+        imshow(imgout);
+        title(contents{handles.chosenimage2});
 
-   
-    
-    
-function imgout = gui_fit(img,seuil)
+        
+    %FIT, mais ne modifie pas le handle
+function imgout = gui_fit(img,handles)
 
 'fit lance'
 
+seuil=handles.slider_seuil;
 
 % barycentres=contours(img,handles.slider_seuil); %premiere detec de x y et R, mais fitpeak le fait ?
 
 % imgout=(img).*img>seuil; % FAire le fit ici les copains
 % OU UTILISATION DE FITPEAK
-imgout=fitngauss(img,seuil,3,1);
+gaussianRI=fitngauss(img,seuil,2,1);
 
+
+
+%affichage et edition liste
+    contents = cellstr(get(handles.listbox_img,'String'));
+    contents{handles.chosenimage2}=[contents{handles.chosenimage},' fit'];
+    set(handles.listbox_img,'String',contents);
+    set(handles.listbox_out,'String',contents);
+%         axes(handles.axes2)
+%         imshow(imgout)
+%         title(contents{handles.chosenimage2})
+        
+        
+        
 
 % --- Detection de touche !
 function figure1_KeyPressFcn(hObject, eventdata, handles)
@@ -979,26 +1017,88 @@ function figure1_KeyPressFcn(hObject, eventdata, handles)
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
 
-eventdata.Key
+eventdata.Key;
 switch eventdata.Key
     case 'c'
-        %CONTRAST: affichage du min au max
-        axes(handles.axes1)
-        imshow(handles.img{handles.chosenimage},[])
-        axes(handles.axes2)
-        imshow(handles.img{handles.chosenimage2},[])
+        'affichage contrasté'
+        if(handles.imageisloaded)
+            %CONTRAST: affichage du min au max
+            contents = cellstr(get(handles.listbox_img,'String'));
+           
+            axes(handles.axes1)
+            imshow(handles.img{handles.chosenimage},[])
+             title([contents{handles.chosenimage},' contrastee'])
+            axes(handles.axes2)
+            imshow(handles.img{handles.chosenimage2},[])
+             title([contents{handles.chosenimage2},' contrastee'])
+        end
+    case 'l'
+        'affichage log'
+        if(handles.imageisloaded)
+            %CONTRAST: affichage du min au max
+            contents = cellstr(get(handles.listbox_img,'String'));
+            axes(handles.axes1)
+            imshow(log(1+handles.img{handles.chosenimage})/log(2),[])
+            title(['log(',contents{handles.chosenimage},')'])
+            axes(handles.axes2)
+            imshow(log( 1+handles.img{handles.chosenimage2} )/log(2),[])
+            title(['log(',contents{handles.chosenimage2},')'])
+        end   
+    case 'n'
+        'affichage normal'
+        if(handles.imageisloaded)
+            contents = cellstr(get(handles.listbox_img,'String'));
+            
+            axes(handles.axes1)
+            imshow(handles.img{handles.chosenimage})
+            title(contents{handles.chosenimage})
+            axes(handles.axes2)
+            imshow(handles.img{handles.chosenimage2})
+             title(contents{handles.chosenimage2})
 
-end
+            
+        end    
+end 
+        
+        
 
-function affichage(naxes) %affiche une image sur l'handle correspondant
+function affichage(naxes,handles) %affiche une image sur l'axes correspondant
 
 switch naxes
     case 1
         axes(handles.axes1)
         imshow(handles.img{handles.chosenimage})
-        title('')
+        contents = cellstr(get(handles.listbox_img,'String'));
+        title(contents{handles.chosenimage})
     case 2
         axes(handles.axes2)
         imshow(handles.img{handles.chosenimage2})
-        title('')
+        contents = cellstr(get(handles.listbox_img,'String'));
+        title(contents{handles.chosenimage2})
+end
+
+function editlog(handles)
+set(handles.edit_log,'String',handles.log{handles.chosenimage});
+
+
+
+function edit_log_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_log (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_log as text
+%        str2double(get(hObject,'String')) returns contents of edit_log as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_log_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_log (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end

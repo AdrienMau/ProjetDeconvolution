@@ -1,12 +1,15 @@
-function [ gaussianRI ] = fitngauss( img,seuil,algo,doplot )
+function [ gaussianRI,p ] = fitngauss( img,seuil,algo,doplot )
 
 %Fit des gaussiennes présentes sur une image, 
 % 1 -utilise un seuil pour détecter des zones et le nombre de gaussiennes.
 %    Calcule leurs positions et leurs rayons approx.
 % 2- fait un algo:
 %       algo=1 Fit directement sur n gaussienne
-%       algo=2 Fit de 1 gaussienne sur n zones
-%       algo=3 Fit de 1 gaussienne sur n zones avec marqogauss
+%       algo=2 Fit de 1 gaussienne sur n zones  
+%       algo=3 Fit de 1 gaussienne sur n zones avec marqogauss /on sort alors aussi p
+
+%AJOUTER FINDPEAK
+
 
 
 %Entrées:
@@ -18,7 +21,7 @@ function [ gaussianRI ] = fitngauss( img,seuil,algo,doplot )
 %Par Mau Adrien;
 
 f_r=1.5; %facteur sur le rayon estimé pour les tailles de zone choisies.
-
+p=NaN;
 if(doplot)
     figure
     barycentres=contoursp(img,seuil);          %taille 3*n i*j  forme [ j i r ] soit [x y r]
