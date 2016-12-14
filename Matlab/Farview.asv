@@ -49,7 +49,7 @@ function varargout = Farview(varargin)
 
 % Edit the above text to modify the response to help Farview
 
-% Last Modified by GUIDE v2.5 14-Dec-2016 12:28:07
+% Last Modified by GUIDE v2.5 13-Dec-2016 19:47:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -631,7 +631,7 @@ function sliderofseuil_Callback(hObject, eventdata, handles)
  %Fit auto:
  if(handles.do_auto_fit)
     handles.img{handles.chosenimage2} =gui_fit(handles.img{handles.chosenimage},handles);
-    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(handles.slider_seuil)];
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(seuil)];
  end
  
  guidata(hObject, handles);
@@ -777,7 +777,7 @@ handles.slider_seuil=value2;
 %on lance le fit automatiquement:
 if(handles.do_auto_fit)
     handles.img{handles.chosenimage2} =gui_fit(handles.img{handles.chosenimage},handles);
-    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(handles.slider_seuil)];
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(seuil)];
 end
 
 
@@ -939,7 +939,7 @@ handles.slider_seuil=value;
 
 if(handles.do_auto_fit)
     handles.img{handles.chosenimage2} = gui_fit(img,handles);
-    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(handles.slider_seuil)];
+    handles.log{handles.chosenimage2}=[handles.log{handles.chosenimage}, ' Fit@seuil=',num2str(seuil)];
 end
 
 guidata(hObject, handles);
@@ -994,16 +994,16 @@ seuil=handles.slider_seuil
 % OU UTILISATION DE FITPEAK
 
 maxloops=100;
-p=fitngauss(img,seuil,handles.algofit,1);
+p=fitngauss(img,seuil,2,1);
 
-sp=size(p)
+sp=size(p);
 s=size(img);
 n=sp(1) %nombre gaussiennes
 
 imgout=zeros(s(1),s(2));    %fit
     %utiliser gaussian plutot:
     for(g=1:n)
-        imgout=imgout+gaussian(p,s(2),s(1));        %c'est bien gaussian (p) ?
+        imgout=imgout+gaussian(p,s(2),s(1));        %c'est b
     end
     MSQ=sum(sum((imgout-img).^2))
     
@@ -1116,33 +1116,3 @@ function edit_log_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on selection change in listbox_algo.
-function listbox_algo_Callback(hObject, eventdata, handles)
-% hObject    handle to listbox_algo (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns listbox_algo contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from listbox_algo
-
-choice=get(hObject,'Value');    % correspond à l'algo choisi
-handles.algofit=choice;
-guidata(hObject, handles);
-
-
-
-% --- Executes during object creation, after setting all properties.
-function listbox_algo_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to listbox_algo (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-handles.algofit=get(hObject,'Value');
-guidata(hObject, handles);

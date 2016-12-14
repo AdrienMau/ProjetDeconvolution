@@ -27,7 +27,7 @@ end
 if(max(max(img))==min(min(img)))
     subplot(221);imshow(img);title('image initiale');
 else
-    subplot(221);imshow(img);title('image initiale');
+    subplot(221);imshow(img);title('image initiale');  %imshow2 eventuellement
 end
 %%
 
