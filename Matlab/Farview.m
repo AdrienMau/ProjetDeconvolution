@@ -994,7 +994,7 @@ seuil=handles.slider_seuil
 % OU UTILISATION DE FITPEAK
 
 maxloops=100;
-p=fitngauss(img,seuil,handles.algofit,1);
+p=fitngauss(img,seuil,handles.algofit,1); %fait le boulot
 
 sp=size(p)
 s=size(img);
