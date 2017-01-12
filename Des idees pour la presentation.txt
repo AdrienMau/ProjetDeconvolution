@@ -1,0 +1,61 @@
+Présentation du cahier des charges:
+
+Faire logiciel, bla, bla
+1 - contexte et des objectifs attendus
+2 - état de l'existant
+3 - solutions proposées
+4 - réalisation et mise en oeuvre (avec l'organisation du projet, qui a
+fait quoi, etc )
+5 - état de la réalisation et son futur (vous pouvez parler de
+valorisation ici)
+
+
+Langage...
+
+ImageJ pour manipuler une image, plugins de déconvolution, 
+plusieurs fonctions matlab à disposition, qu'on nous a donné
+
+On savait que ça allait être plus facile sur matlab <== fonction trackread
+Possibilité de lien avec ImageJ ==> Motivé à faire des recherches sur ImageJ
+
+
+Pour le fit: il existe différentes méthodes
+Ondelettes: rapide, mais... ?
+Opté pour une solution à portée de main : soit le machin d'Adrien, soit celui de Cognet ==> Période de tests
+
+
+CONTEXTE: 
+
+Pour réexpliquer rapidement ce qu'est la super-résolution:
+On est à une époque avec des beaux microscopes, qui ont très peu d'aberration, ce qui fait qu'il 
+sont limités par la diffraction, diffraction qui fait que l'image d'un point est une tache d'Airy (images).
+Ensuite, il existe une modalité de microscopie qui s'appelle la microscopie de fluorescence. Le principe 
+consiste à injecter des particules fluorescentes dans les molécules étudiées qui vont s'attacher à ce qui
+nous intéresse, nous donnant ce genre d'image (image). (On a des structures, blabla). Maintenant, si on veut 
+zoomer sur ces particules, et bien on est limité par la diffraction. En effet, les particules fluorescentes 
+utilisées font quelques nanomètres, alors que les résolutions atteintes sont de l'ordre de lambda sur deux,
+quelque chose comme 200 nanomètres.
+On revient sur la slide précédente ==> on sait que point devient tache, donc si on a exactement tache, on en 
+déduit aisément où on a point.
+En se basant sur ce principe, en détectant des molécules de manière individuelle, on peut reconstruire des 
+images constituées de points. 
+On peut imaginer faire cela avec différentes sortes de nanoparticules et différents types de signaux.
+Ici, l'acquisition se base sur des nanoparticules d'or, que l'ont fait chauffer, ce qui va créer un gradient 
+d'indice qui va diffracter la lumière (revoir le principe). Ainsi, la réponse du système sera une gaussienne,
+de proportions connues. On connait la forme donc on peut en faire de la super-résolution.
+
+DECONVOLUTION:
+
+Bon, alors il y avait un second problème auquel il fallait s'attaquer qui était la déconvolution.
+Alors, la déconvolution est un traitement qu'on applique à une image pour annuler une convolution. Dans notre
+cas, l'image idéale a été convoluée par la réponse du système qu'est la gaussienne.
+
+Bon, alors, pour ce qui est du problème de la déconvolution, 
+On avait fait tout d'abord quelques recherches sur ImageJ, où il existe plusieurs fonctions ou modules qui 
+existent déjà, notamment... (faire des recherches)
+une fois qu'on avait choisi que pas ImageJ, et ben...
+Passage sur Matlab, toolbox ImageProcessing (c'biença?)
+4 fonctions.
+
+On avait vu en première année une version d'un 
+filtre dit de Wiener
