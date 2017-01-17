@@ -140,6 +140,7 @@ if(doplot)
 
 
     subplot(224);    imshow(fitg);
+    title('Fit')
     figure
     hist(gaussianRI(:,1),n)
     title('repartition des rayons');

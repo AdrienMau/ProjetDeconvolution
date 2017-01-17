@@ -983,7 +983,8 @@ function [imgout] = gui_deconv(img,handles)
     set(handles.listbox_out,'String',contents);
         axes(handles.axes2);
 
-            imshow(imgout,[]);
+%             imshow(imgout,[]);
+            imshow(imgout);
             title(contents{handles.chosenimage2});
 
 
