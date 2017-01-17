@@ -3,7 +3,7 @@ function [ imgout ] = passe_hg( img,fradius,power)
 % Passe bas ou passe haut:
 % Multiplication terme à terme par un masque hypergaussien dans l'espace de
 % Fourier
-%Entrées:
+% Entrées:
 %   img: image en nuance de gris/ 2D
 %   fradius : facteur pour le rayon de l'hypergaussienne (voir calcul du
 %   rayon)

@@ -1,8 +1,8 @@
 function [ gaussianRI ] = fit_ngaussRI(img, barycentres)
 
-%Fonction adaptée au cas d'une image contenant n gaussiennes à fiter, dont
-%on connait le nombre n et les positions Et dont on veut trouver le rayon
-%et l'intensité (amplitude)
+% Fonction adaptée au cas d'une image contenant n gaussiennes à fiter, dont
+% on connait le nombre n et les positions Et dont on veut trouver le rayon
+% et l'intensité (amplitude)
 %Functiun adapted for the fit of radius of intensity of gaussians, of
 %which we already know the positions and an approximate radius.
 

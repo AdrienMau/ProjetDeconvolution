@@ -1,4 +1,4 @@
-function REST = filtreWiener(Data,RI,mu,D)
+function REST = filtreWiener_old(Data,RI,mu,D)
 
 %Operates the deconvolution of the Data matrix (who itself is the result of
 %a convolution by the psf RI) by using a regularized Wiener filter.

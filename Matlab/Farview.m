@@ -49,7 +49,7 @@ function varargout = Farview(varargin)
 
 % Edit the above text to modify the response to help Farview
 
-% Last Modified by GUIDE v2.5 14-Dec-2016 12:28:07
+% Last Modified by GUIDE v2.5 16-Jan-2017 15:31:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -967,7 +967,7 @@ function [imgout] = gui_deconv(img,handles)
     RI=transpose(x)*x;
     D = [0.01,0.2,0.01;0.2,4,0.2;0.01,0.2,0.01];
 
-    imgout=filtreWiener(img,RI,D,lambda);
+    imgout=filtreWiener(img,RI,lambda,D);
     handles.img{handles.chosenimage2}=imgout;
     'deconv lancee'
     
@@ -980,7 +980,7 @@ function [imgout] = gui_deconv(img,handles)
         imshow(imgout);
         title(contents{handles.chosenimage2});
 
-        
+     %Bouton Contour =>
     %FIT, mais ne modifie pas le handle
 function [imgout,p] = gui_fit(img,handles)
 %renvoie l'image fitée et les parametres de chaque gaussienne
@@ -996,7 +996,10 @@ seuil=handles.slider_seuil
 maxloops=100;
 p=fitngauss(img,seuil,handles.algofit,1); %fait le boulot
 
-sp=size(p)
+save (['parametres_g',date,'.txt'],'p','-ascii')
+
+
+sp=size(p);
 s=size(img);
 n=sp(1) %nombre gaussiennes
 

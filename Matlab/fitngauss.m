@@ -1,6 +1,6 @@
 function [ p,gaussianRI ] = fitngauss( img,seuil,algo,doplot )
 
-%Fit des gaussiennes présentes sur une image, 
+% Fit des gaussiennes présentes sur une image, 
 % 1 -utilise un seuil pour détecter des zones et le nombre de gaussiennes.
 %    Calcule leurs positions et leurs rayons approx.
 % 2- fait un algo:
@@ -111,9 +111,17 @@ if(doplot)
 
     subplot(224);    imshow(fitg);
     figure
-    histogram(gaussianRI(:,1))
+    hist(gaussianRI(:,1))
     title('repartition des rayons');
     MSQ=sum(sum((fitg-img).^2))
+    
+    figure
+    hist(gaussianRI(:,2))
+    title('repartition des intensités');
+    
+    
+    
+    
 end
 
 
