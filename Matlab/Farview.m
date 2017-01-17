@@ -147,7 +147,7 @@ if(NomFic) %if a file has been chosen
             img=(calcR(a)); %double
             handles.stepsize = p2.stepsize;
             MAX=max(max(img))
-            img=img/MAX;
+            img=img/MAX;    %on met le maximum à 1
             
         else
             img=double(imread(strcat(NomEmp,NomFic)));
@@ -957,7 +957,7 @@ function checkbox_autofit_Callback(hObject, eventdata, handles)
 handles.do_auto_fit=get(hObject,'Value')
 guidata(hObject, handles);
 
-
+%DECONVOLUTION
 function [imgout] = gui_deconv(img,handles)
 
     lambda=handles.slider_lambda
@@ -972,8 +972,9 @@ function [imgout] = gui_deconv(img,handles)
     D = [0 -1 0;-1 4 -1 ; 0 -1 0];
 
     imgout=filtreWiener(img,RI,lambda,D);
+    imgout=imgout/max(max(imgout)); %retabissement à 1
     handles.img{handles.chosenimage2}=imgout;
-    'deconv lancee'
+    'deconv finie'
     
     %Affichage
     contents = cellstr(get(handles.listbox_img,'String'));
@@ -981,13 +982,10 @@ function [imgout] = gui_deconv(img,handles)
     set(handles.listbox_img,'String',contents);
     set(handles.listbox_out,'String',contents);
         axes(handles.axes2);
-        try
+
             imshow(imgout,[]);
-            title([contents{handles.chosenimage2},' contrastee']);
-        catch
-            imshow(imgout);
             title(contents{handles.chosenimage2});
-        end
+
 
      %Bouton Contour =>
     %FIT, mais ne modifie pas le handle

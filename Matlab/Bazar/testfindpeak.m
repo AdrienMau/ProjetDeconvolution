@@ -6,7 +6,7 @@ img=imdata(105);
 %FITOPT ??
 
 
-opt=startqd;
+opt=start;
 opt(7)=0.5;
 opt(9)=1;
 result=findpeak(img,opt);

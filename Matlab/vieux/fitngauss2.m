@@ -1,4 +1,4 @@
-function [ p,gaussianRI ] = fitngauss( img,seuil,algo,doplot )
+function [ p,gaussianRI ] = fitngauss2( img,seuil,algo,doplot )
 
 % Fit des gaussiennes présentes sur une image, 
 % 1 -utilise un seuil pour détecter des zones et le nombre de gaussiennes.
@@ -76,16 +76,11 @@ elseif(algo>1)    %region par region, avec fit_ngauss (où n=1) ou marqogauss
         %choix fit:
             %juste variance et intensité:
             gaussianRI(i,:)=fit_ngaussRI(img(ymin:ymax,xmin:xmax) , barycentres(:,i)-[xmin;ymin;0]); %fit juste i et R 
-%             sigma=gaussianRI(i,1);
+            
             sigma=2*sqrt(2*log(2))*gaussianRI(i,1);
             p(i,:)=[barycentres(1,i),barycentres(2,i),sigma,gaussianRI(i,2)*sigma^2*pi/(4*log(2)),0];  
             % ou offset avec min(min(img)) ?
 %             p(i,:)=[barycentres(1,i),barycentres(2,i),sigma,gaussianRI(i,2)*sigma^2*pi/(4*log(2)),min(min(img(ymin:ymax,xmin:xmax)))]; 
-
-        barycentres(:,i)=[p(i,1),p(i,2),p(i,3)/(2*sqrt(2*log(2)))];
-        gaussianRI(i,:)=[ p(i,3)/(2*sqrt(2*log(2))) , 4*log(2)/p(i,3)^2/pi*p(i,4) ];
-
-
         elseif(algo==3)
             %OU marqogauss : x y 'rayon', intensité et offset 
             %(forcer  l'offset à 0 ?)
@@ -109,7 +104,7 @@ elseif(algo>1)    %region par region, avec fit_ngauss (où n=1) ou marqogauss
             p(i,:)= p(1:5)+[xmin,ymin,0,0,0];
             barycentres(:,i)=[p(i,1),p(i,2),p(i,3)/(2*sqrt(2*log(2)))];
             gaussianRI(i,:)=[ p(i,3)/(2*sqrt(2*log(2))) , 4*log(2)/p(i,3)^2/pi*p(i,4) ];
-'algo 3'
+
         
             
             
@@ -141,12 +136,12 @@ if(doplot)
 
     subplot(224);    imshow(fitg);
     figure
-    hist(gaussianRI(:,1),n)
+    hist(gaussianRI(:,1))
     title('repartition des rayons');
     MSQ=sum(sum((fitg-img).^2))
     
     figure
-    hist(gaussianRI(:,2),n)
+    hist(gaussianRI(:,2))
     title('repartition des intensités');
     
     
