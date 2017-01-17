@@ -49,7 +49,7 @@ if(algo==4) %findpeak
     sr=size(result);
     npeaks=sr(1);
     barycentres=[p(:,1),p(:,2),p(:,3)/(2*sqrt(2*log(2)))];
-    gaussianRI=[ p(:,3)/(2*sqrt(2*log(2))) , 4*log(2)./p(:,3)^2/pi.*p(:,4) ];
+    gaussianRI(i,:)=[ p(i,3)/(2*sqrt(2*log(2))) , 4*log(2)/p(i,3)^2/pi*p(i,4) ];
     
 
 elseif(algo==1)

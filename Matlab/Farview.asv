@@ -143,9 +143,10 @@ if(NomFic) %if a file has been chosen
     %CHARGEMENT IMAGE
         if(NomFic(end-3:end)=='.dat')
             %ouverture avec trackread
-            [a,p,t,c,p2]=trackread([NomEmp,'\',NomFic]);
+            [a,fun]=trackread([NomEmp,'\',NomFic]);
             img=(calcR(a)); %double
-            handles.stepsize = p2.stepsize;
+            handles.stepsize = fun(4).
+            
             MAX=max(max(img))
             img=img/MAX;
             
@@ -603,10 +604,10 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 % set the slider range and step size
- numSteps = 1000;
+ numSteps = 500;
  set(hObject, 'Min', 0);
- set(hObject, 'Max', 1);
- set(hObject, 'Value', 0.5);
+ set(hObject, 'Max', 20);
+ set(hObject, 'Value', 1);
  set(hObject, 'SliderStep', [1/(numSteps-1) , 1/(numSteps-1) ]);
  % save the current/last slider value
  handles.slider_radius = 1;
@@ -857,10 +858,9 @@ img=handles.img{handles.chosenimage};
 % Valeurs automatiques:
 
 radius=approxR( img , 20);
-% x = -20:20; x=exp(-x.*x/radius/radius);
-x = -20:20; x=exp(-x.*x/2/radius/radius)/sqrt(2*pi)/radius;
+x = -20:20; x=exp(-x.*x/radius/radius);
 RI=transpose(x)*x;
-D = [0 -1 0;-1 4 -1 ; 0 -1 0];   %filtre
+D = [0.01,0.2,0.01;0.2,4,0.2;0.01,0.2,0.01];    %filtre
 lambda=filtreWienerAuto2(img,RI,D,50);
 
 % %en attendant: (a supprimer) 
@@ -960,18 +960,16 @@ guidata(hObject, handles);
 
 function [imgout] = gui_deconv(img,handles)
 
-    lambda=handles.slider_lambda
+    lambda=handles.slider_lambda;
     largeur=handles.slider_radius;
 
-    H = largeur/handles.stepsize;
-    n = H/2/sqrt(2*log(2));
+    H = largeur/
     %PSF et D:
-    t=floor(min(size(img)/8))
-    x = -t:t; x=exp(-x.*x/2/n/n)/sqrt(2*pi)/n;
+    x = -20:20; x=exp(-x.*x/2/n/n)/n;
     RI=transpose(x)*x;
     D = [0 -1 0;-1 4 -1 ; 0 -1 0];
 
-    imgout=filtreWiener(img,RI,lambda,D);
+    imgout=filtreWiener_old(img,RI,lambda,D);
     handles.img{handles.chosenimage2}=imgout;
     'deconv lancee'
     
@@ -981,13 +979,8 @@ function [imgout] = gui_deconv(img,handles)
     set(handles.listbox_img,'String',contents);
     set(handles.listbox_out,'String',contents);
         axes(handles.axes2);
-        try
-            imshow(imgout,[]);
-            title([contents{handles.chosenimage2},' contrastee']);
-        catch
-            imshow(imgout);
-            title(contents{handles.chosenimage2});
-        end
+        imshow(imgout);
+        title([contents{handles.chosenimage2},'']);
 
      %Bouton Contour =>
     %FIT, mais ne modifie pas le handle
@@ -1104,7 +1097,6 @@ end
 
 function editlog(handles)
 if(handles.imageisloaded)
-    handles.log{handles.chosenimage}
     set(handles.edit_log,'String',handles.log{handles.chosenimage});
 end
 

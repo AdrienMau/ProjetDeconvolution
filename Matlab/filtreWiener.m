@@ -10,13 +10,6 @@ function REST = filtreWiener(Data,RI,mu,D)
 % [in] nbIterations : numbers of iterations of the algorithm
 % [out] REST : the result of the deconvolution
 
-if nargin<2
-    n=3;
-    x = -n:n; x=exp(-x.*x/n);
-    RI=transpose(x)*x;
-    D = [0.01,0.2,0.01;0.2,4,0.2;0.01,0.2,0.01];
-    mu=0.05;
-end
 
 %Calculate the N*N-points FFT2 of the impulse response
 fourierpsf = MyFFT2RI(RI,size(Data,1),size(Data,2));
