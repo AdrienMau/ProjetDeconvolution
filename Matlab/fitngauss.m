@@ -138,7 +138,9 @@ if(doplot)
         fitg=fitg+gauss2D(s,[0,gaussianRI(g,2),barycentres(2,g),barycentres(1,g),gaussianRI(g,1)]);
     end
 
-
+if(algo==4)
+    figure
+end
     subplot(224);    imshow(fitg);
     title('Fit')
     figure

@@ -49,7 +49,7 @@ function varargout = Farview(varargin)
 
 % Edit the above text to modify the response to help Farview
 
-% Last Modified by GUIDE v2.5 16-Jan-2017 15:31:28
+% Last Modified by GUIDE v2.5 18-Jan-2017 12:06:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -95,7 +95,8 @@ handles.folderpath='No Path Chosen';
     handles.slider_seuil=1;
     handles.do_auto_dec=0;
     handles.do_auto_fit=0;
-
+    handles.imgrgbinit=0;   %initier l'image RGB (zeros (size,3) )
+    
 cla(handles.axes1,'reset') %reset des axes
 cla(handles.axes2,'reset') %reset des axes
 % Choose default command line output for Farview
@@ -146,6 +147,8 @@ if(NomFic) %if a file has been chosen
             [a,p,t,c,p2]=trackread([NomEmp,'\',NomFic]);
             img=(calcR(a)); %double
             handles.stepsize = p2.stepsize;
+            set(handles.text_stepsize,'String',['stepsize: ',num2str(p2.stepsize), 'µm/pix']);
+            
             MAX=max(max(img))
             img=img/MAX;    %on met le maximum à 1
             
@@ -191,6 +194,11 @@ if(NomFic) %if a file has been chosen
     
     handles.folderpath=NomEmp;
 
+    
+    if(~handles.imageisloaded)  %si on avait pas chargé d'image avant, on va initialiser imgrgb avec 
+        s=size(img)
+        handles.imgrgb=zeros(s(1),s(2),3);
+    end
     handles.imageisloaded=1;
     guidata(hObject,handles)
  
@@ -1004,8 +1012,10 @@ seuil=handles.slider_seuil
 maxloops=100;
 p=fitngauss(img,seuil,handles.algofit,1); %fait le boulot
 
-save (['parametres_g',date,'.txt'],'p','-ascii')
-
+name=datestr(datetime('now'));
+name(name==' ')='_';
+save (['parametres_g',name,'.txt'],'p','-ascii')     %pas de soucis si il fait pas deux fits sur la meme seconde..
+% save (['parametres_g',date,'.txt'],'p','-ascii')
 
 sp=size(p);
 s=size(img);
@@ -1117,6 +1127,7 @@ function edit_log_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_log as a double
 
 
+%Texte du log
 % --- Executes during object creation, after setting all properties.
 function edit_log_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_log (see GCBO)
@@ -1129,7 +1140,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
+%Choix algo pour fit
 % --- Executes on selection change in listbox_algo.
 function listbox_algo_Callback(hObject, eventdata, handles)
 % hObject    handle to listbox_algo (see GCBO)
@@ -1142,7 +1153,6 @@ function listbox_algo_Callback(hObject, eventdata, handles)
 choice=get(hObject,'Value');    % correspond à l'algo choisi
 handles.algofit=choice;
 guidata(hObject, handles);
-
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1158,3 +1168,64 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 handles.algofit=get(hObject,'Value');
 guidata(hObject, handles);
+
+
+
+%%
+%Superposition RGB
+%notes:
+%Pour l'instant images de même tailles seulement, la taille est prise au
+%premier chargement d'image. 
+
+% Chaque bouton RGB associe l'image choisie dans la liste 1 à l'espace
+% respectif RGB de l'image
+
+% --- Executes on button press in pushbutton_red.
+function pushbutton_red_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_red (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.imgrgb(:,:,1)=handles.img{handles.chosenimage};
+affichagergb(handles)
+guidata(hObject, handles);
+
+% --- Executes on button press in pushbutton_green.
+function pushbutton_green_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_green (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.imgrgb(:,:,2)=handles.img{handles.chosenimage};
+affichagergb(handles)
+guidata(hObject, handles);
+
+% --- Executes on button press in pushbutton_blue.
+function pushbutton_blue_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_blue (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.imgrgb(:,:,3)=handles.img{handles.chosenimage};
+affichagergb(handles)
+guidata(hObject, handles);
+
+%Permet de redéfinir la taille que de l'image rgb avec l'image actuelle
+% --- Executes on button press in pushbutton_resetrgb.
+function pushbutton_resetrgb_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_resetrgb (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+s=size(handles.img{handles.chosenimage});
+handles.imgrgb=zeros(s(1),s(2),3);
+affichagergb(handles)
+guidata(hObject, handles);
+
+
+function affichagergb(handles) %affiche une image sur l'axes correspondant
+
+        axes(handles.axes3)
+        imshow(handles.imgrgb,[]);
+
+
+      %%
+      
+
+
